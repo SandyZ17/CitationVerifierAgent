@@ -1,6 +1,8 @@
 import requests
-from config.settings import DEFAULT_MAX_RESULTS
+# from config.settings import DEFAULT_MAX_RESULTS
 import arxiv
+
+DEFAULT_MAX_RESULTS = 10
 
 
 class ArxivClient:
@@ -17,7 +19,8 @@ class ArxivClient:
         """
         try:
             search = arxiv.Search(
-                query=query,
+                # query=query,
+                id_list=[query],
                 max_results=max_results,
                 sort_by=arxiv.SortCriterion.Relevance,
                 sort_order=arxiv.SortOrder.Descending
@@ -57,7 +60,8 @@ class ArxivClient:
 if __name__ == "__main__":
     # 测试示例
     client = ArxivClient()
-    results = client.search_papers("laser absorption")
+    results = client.search_papers("1705.06950")
+    print("搜索结果: ", results)
     if results:
         print("找到文献: ", results[0]["title"])
         success = client.download_pdf(

@@ -1,8 +1,12 @@
-# src/parsers/latex_parser.py
 import re
+from parsers.file_parser import FileParser, register_doc_parser
 
 
-class LatexParser:
+@register_doc_parser("tex")
+class LatexParser(FileParser):
+    """
+    LatexParser类用于解析LaTeX文档中的参考文献部分
+    """
     @staticmethod
     def extract_references(tex_path):
         """
@@ -36,10 +40,3 @@ class LatexParser:
                 cite_keys).split(',') if key.strip()]
 
         return references
-
-
-if __name__ == "__main__":
-    # 测试示例
-    parser = LatexParser()
-    refs = parser.extract_references("paper.tex")
-    print("提取到的参考文献：", refs)

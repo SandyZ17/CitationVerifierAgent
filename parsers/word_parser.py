@@ -1,10 +1,14 @@
-# src/parsers/word_parser.py
-from docx import Document
 import re
+from docx import Document
 from utils.refer_parser import parse_ieee_reference
+from parsers.file_parser import FileParser, register_doc_parser
 
 
-class WordParser:
+@register_doc_parser("docx")
+class WordParser(FileParser):
+    """
+    Word解析器
+    """
     @staticmethod
     def extract_references(doc_path):
         """
@@ -33,10 +37,3 @@ class WordParser:
                 references.append(parse_res)
 
         return references
-
-
-if __name__ == "__main__":
-    # 测试示例
-    parser = WordParser()
-    refs = parser.extract_references("test.docx")
-    print("提取到的参考文献：", refs)

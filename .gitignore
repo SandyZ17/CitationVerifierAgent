@@ -193,3 +193,8 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+faiss_hashes.txt
+faiss_index
+.DS_Store
+.vscode

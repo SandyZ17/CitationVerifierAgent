@@ -14,12 +14,13 @@ MODEL_CONFIGS = {
     "openai": {
         "api_key": os.getenv("API_KEY"),
         "endpoint": "https://api.openai.com/v1/chat/completions",
-        "model": os.getenv("LLM_MODEL", "gpt-3.5-turbo")
+        "model": os.getenv("LLM_MODEL", "gpt-3.5-turbo"),
     },
     "dashscope": {
         "api_key": os.getenv("API_KEY"),
         "endpoint": "https://api.dashscope.com/api/v1/services/text-generation/v1",
-        "model": os.getenv("LLM_MODEL", "qwen-max")
+        "model": os.getenv("LLM_MODEL", "qwen-max"),
+        "embedding_model": os.getenv("EMBEDDING_MODEL", "text-embedding-v2"),
     },
     "anthropic": {
         "api_key": os.getenv("API_KEY"),
