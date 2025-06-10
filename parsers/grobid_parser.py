@@ -6,6 +6,33 @@ class GrobidParser:
     def __init__(self, grobid_url="http://localhost:8070"):
         self.grobid_client = GrobidClient(grobid_server=grobid_url)
 
+    def extract_metadata(self, doc_path):
+        """
+        使用GROBID提取PDF中的元数据
+        :param doc_path: PDF文件路径
+        :return: 元数据字典
+        """
+        try:
+            _, _, xml_content = self.grobid_client.process_pdf(service="processHeaderDocument", pdf_file=doc_path, generateIDs=False, consolidate_header=True,
+                                                               consolidate_citations=True, include_raw_citations=True, include_raw_affiliations=True, tei_coordinates=True, segment_sentences=True)
+            # grobid解析文件成功
+            print(f"[成功] grobid解析{doc_path}成功")
+            # 解析出 XML Abstract 内容
+            root = etree.fromstring(xml_content.encode('utf-8'))
+            ns = {'tei': 'http://www.tei-c.org/ns/1.0'}
+
+            # 提取 biblStruct/analytic/title
+            titles = root.xpath(
+                './/tei:biblStruct/tei:analytic/tei:title', namespaces=ns)
+            if titles:
+                title_text = ''.join(titles[0].itertext()).strip()
+                return {"title": title_text}
+            else:
+                return {}
+        except Exception as e:
+            print(f"[错误] 提取元数据失败: {e}")
+            return {}
+
     def grobid_extract_tei(self, doc_path):
         """
         使用GROBID提取PDF中的TEI XML
@@ -252,6 +279,6 @@ if __name__ == "__main__":
     # print(abstract)
     # bibs = parser.extract_references(doc_path=pdf_path)
     # print(bibs)
-
-    res = parser.extract_refer_text(doc_path=pdf_path, ref_id="b4")
+    res = parser.extract_metadata(pdf_path)
+    # res = parser.extract_refer_text(doc_path=pdf_path, ref_id="b4")
     print(res)

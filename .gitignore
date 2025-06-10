@@ -194,7 +194,7 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-faiss_hashes.txt
-faiss_index
+faiss_hashes*
+faiss_index*
 .DS_Store
 .vscode
