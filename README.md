@@ -16,8 +16,11 @@
 ```bash
 git clone https://github.com/SandyZ17/CitationVerifierAgent.git 
 cd CitationVerifierAgent
-conda env create -f freeze.yml
+# 创建 conda 环境
+conda create -n citation_verifier python=3.10 -y
 conda activate citation_verifier
+# 安装依赖
+pip instal -r requirements.txt
 ```
 
 启动 Grobid Docker 服务
