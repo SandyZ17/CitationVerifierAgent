@@ -18,7 +18,7 @@
 
 ## 0. Setup
 
-> 注意：本项目使用 Grobid 进行论文结构解析，需要在本地安装 Grobid 服务，并且需要在本地启动 Grobid 服务，所以只支持 Linux/Macos，不能使用 Windows。
+> 注意：本项目使用 Grobid 进行论文结构解析，需要在本地安装 Grobid 服务，如果是 Windows 用户，则需要使用虚拟机/Docker/远程服务器进行安装。其他平台用户则可以直接使用 Docker 进行安装。
 
 克隆项目，拉取项目代码，并创建conda环境
 
@@ -47,7 +47,7 @@ Macos
 docker run --platform linux/arm64 --init -p 8070:8070 lfoppiano/grobid:latest-crf-multi-arch
 ```
 
-启动 Grobid 服务后能够在 [127.0.0.1:8070](localhost:8070) 访问到如下界面。
+如在本地启动 Grobid 服务后能够在 [127.0.0.1:8070](localhost:8070) 访问到如下界面。
 ![image-grobid-dashboard](images/grobid_dashboard.png)
 
 ## 1. Build && Run
@@ -58,7 +58,14 @@ docker run --platform linux/arm64 --init -p 8070:8070 lfoppiano/grobid:latest-cr
 API_KEY=sk-***********
 EMBEDDING_MODEL=text-embedding-v2
 LLM_MODEL=qwen-max
+GROBID_URL=http://127.0.0.1:8070
 ```
+
+配置文件说明
+API_KEY: 必填，通义千问API密钥。
+EMBEDDING_MODEL: 必填，嵌入模型名称，自行选择 QWEN 官方可支持的模型。
+LLM_MODEL: 必填，LLM模型名称，自行选择 QWEN 官方可支持的模型。
+GROBID_URL: 必填，Grobid 服务地址，默认 `http://127.0.0.1:8070`。
 
 运行
 

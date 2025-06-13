@@ -4,7 +4,7 @@ import json
 
 from parsers.grobid_parser import GrobidParser
 from clients.arxiv_client import ArxivClient
-from config.settings import MODEL_CONFIGS
+from config.settings import MODEL_CONFIGS, GROBID_URL
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
@@ -24,7 +24,7 @@ class CitationVerificationSystem:
 
         self.doc_path = doc_path
         self.doc_id = os.path.splitext(os.path.basename(doc_path))[0]  # 唯一文档ID
-        self.parser = GrobidParser(grobid_url="http://localhost:8070")
+        self.parser = GrobidParser(grobid_url=GROBID_URL)
         self.arxiv_client = ArxivClient()
         self.download_dir = download_dir
         os.makedirs(self.download_dir, exist_ok=True)

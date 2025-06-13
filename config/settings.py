@@ -16,6 +16,8 @@ ARXIV_API_URL = "http://export.arxiv.org/api/query"
 DEFAULT_MAX_RESULTS = 10
 CHECK_TYPE = os.getenv("CHECK_TYPE", CheckType.CHECK_TYPE_SIMPLE)
 
+GROBID_URL = os.getenv("GROBID_URL", "http://localhost:8070")
+
 # 大模型配置
 MODEL_CONFIGS = {
     "openai": {
