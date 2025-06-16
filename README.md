@@ -112,4 +112,7 @@ CitationVerifierAgent
     └── citation_verifier_system.py
 ```
 
-- 项目运行流程图
+- 项目架构图
+![架构图](./images/process.svg)
+- 项目运行流程图如下所示
+![流程图](./images/process_1.svg)

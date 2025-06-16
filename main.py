@@ -1,6 +1,6 @@
 import argparse
 from verifier.citation_verifier_system import CitationVerificationSystem
-from config.settings import CheckType
+from verifier.citation_verify_langchain_ver import CitationVerificationLangchainVer
 
 if __name__ == "__main__":
     # 添加参数解析器
@@ -16,13 +16,17 @@ if __name__ == "__main__":
                         help='文档保存路径，例如：path/to/your/download_dir')
     args = parser.parse_args()
 
-    system = CitationVerificationSystem(
-        download_dir=args.download_dir, doc_path=args.doc_path, output_dir=args.output_dir)
     # 解析出所有的参考文献
-    references = system.parser.extract_references(system.doc_path)
     if args.verify_type == "simple":
+        system = CitationVerificationSystem(
+            download_dir=args.download_dir, doc_path=args.doc_path, output_dir=args.output_dir)
+        references = system.parser.extract_references(system.doc_path)
         print("✅ 使用普通模型进行验证")
         system.verify_citation(references)
     else:
+        sys = CitationVerificationLangchainVer(
+            download_dir=args.download_dir, doc_path=args.doc_path, output_dir=args.output_dir)
+        references = sys.parser.extract_references(
+            sys.doc_path)
         print("✅ 使用链路模型进行验证")
-        system.verify_citation_by_chain(references)
+        sys.verify_citation_by_chain(references)
