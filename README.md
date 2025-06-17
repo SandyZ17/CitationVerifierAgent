@@ -52,6 +52,8 @@ docker run --platform linux/arm64 --init -p 8070:8070 lfoppiano/grobid:latest-cr
 
 ## 1. Build && Run
 
+### 1.0 配置
+
 在根目录下创建一个 `.env` 文件，内容如下：
 
 ```text
@@ -69,7 +71,7 @@ EMBEDDING_MODEL: 必填，嵌入模型名称，自行选择 QWEN 官方可支持
 LLM_MODEL: 必填，LLM模型名称，自行选择 QWEN 官方可支持的模型。
 GROBID_URL: 必填，Grobid 服务地址，默认 `http://127.0.0.1:8070`。
 
-命令行运行
+### 1.1 命令行运行
 
 ```bash
 python main.py --doc_path your_test_pdf_path --download_dir your_arxiv_doc_dir --output_dir your_result_output_path --verify_type simple
@@ -88,11 +90,12 @@ python main.py --doc_path your_test_pdf_path --download_dir your_arxiv_doc_dir -
 运行得到结果为：
 ![result](images/result.png)
 
-可视化界面运行
+### 可视化界面运行
 
 ```bash
 streamlit run app.py
 ```
+
 简单模式运行如下图所示：
 ![run](images/simple1.png)
 ![run](images/simple2.png)
@@ -100,40 +103,30 @@ streamlit run app.py
 链路运行如下图所示：
 ![run](images/chain.png)
 
-
 ## 2. Appendix
 
 - 项目结构
 
 ```text
 CitationVerifierAgent
+├── app.py                          # 运行界面
+├── main.py                         # 命令行运行入口
 ├── clients
-│   └── arxiv_client.py                 # Arxiv API 客户端
+│   └── arxiv_client.py             # arxiv客户端
 ├── config
-│   └── settings.py                     # 配置文件
-├── data
-│   ├── output                          # 输出结果目录
-│   │   ├── 2506.05336v1
-│   │   │   ├── error_2506.05336v1.txt
-│   │   │   └── result_2506.05336v1.txt
-│   │   └── test
-│   │       └── result_test.txt
-│   └── test_pdf
-│       ├── 2506.05336v1.pdf
-│       └── test.pdf
+│   └── settings.py                 # 配置文件
 ├── LICENSE
-├── main.py                             # 项目入口
-├── parsers                             # 论文解析器    
-│   └── grobid_parser.py               
-├── process.drawio                      # 项目流程图
+├── parsers
+│   └── grobid_parser.py            # grobid 解析器
+├── process.drawio                  # 运行流程图
 ├── README.md
-├── requirements.txt                    # 项目依赖
+├── requirements.txt
 ├── utils
-│   ├── academic_paper_splitter.py      # 论文内容分割
-│   └── refer_parser.py                 # 引用关系解析
+│   ├── academic_paper_splitter.py  # 论文分割器
+│   └── refer_parser.py             # 参考文献解析器
 └── verifier
     ├── citation_verifier_system.py         # 引用关系验证系统
-    └── citation_verify_langchain_ver.py    # 基于Langchain的引用关系验证系统
+    └── citation_verify_langchain_ver.py    # 引用关系验证系统（langchain）
 ```
 
 - 项目架构图
