@@ -29,7 +29,7 @@ cd CitationVerifierAgent
 conda create -n citation_verifier python=3.10 -y
 conda activate citation_verifier
 # 安装依赖
-pip instal -r requirements.txt
+pip install -r requirements.txt
 ```
 
 启动 Grobid Docker 服务
