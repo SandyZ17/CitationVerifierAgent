@@ -69,7 +69,7 @@ EMBEDDING_MODEL: 必填，嵌入模型名称，自行选择 QWEN 官方可支持
 LLM_MODEL: 必填，LLM模型名称，自行选择 QWEN 官方可支持的模型。
 GROBID_URL: 必填，Grobid 服务地址，默认 `http://127.0.0.1:8070`。
 
-运行
+命令行运行
 
 ```bash
 python main.py --doc_path your_test_pdf_path --download_dir your_arxiv_doc_dir --output_dir your_result_output_path --verify_type simple
@@ -87,6 +87,19 @@ python main.py --doc_path your_test_pdf_path --download_dir your_arxiv_doc_dir -
 ![run](images/run.png)
 运行得到结果为：
 ![result](images/result.png)
+
+可视化界面运行
+
+```bash
+streamlit run app.py
+```
+简单模式运行如下图所示：
+![run](images/simple1.png)
+![run](images/simple2.png)
+
+链路运行如下图所示：
+![run](images/chain.png)
+
 
 ## 2. Appendix
 
