@@ -24,9 +24,7 @@ class CitationVerificationLangchainVer:
 
         # 初始化配置
         self.doc_path = doc_path
-
-        self.doc_id = os.path.splitext(
-            os.path.basename(self.doc_path))[0]
+        self.doc_id = os.path.splitext(os.path.basename(self.doc_path))[0]
         self.output_dir = os.path.join(output_dir, self.doc_id)
         shutil.rmtree(self.output_dir, ignore_errors=True)
         # 设置output_path
@@ -171,16 +169,18 @@ class CitationVerificationLangchainVer:
         refer_text = [doc.page_content for doc in docs]
         return refer_text
 
-    def verify_citation_by_chain(self, references):
+    def verify_citation_by_chain(self, references, callback=None):
         """
         多引用多context逐条判别（基于向量检索）。
         :param references: list of reference dicts
+        :param callback: 可选回调函数，用于实时显示结果
         """
         results = []
 
         for ref in references:
             if not ref.get("doi"):
-                print(f"[跳过] 缺少DOI: {ref.get('title')}")
+                if callback:
+                    callback(f"[跳过] 缺少DOI: {ref.get('title')}\n")
                 continue
 
             # 缓存结果
@@ -191,12 +191,15 @@ class CitationVerificationLangchainVer:
                 with open(self.repeat_path, "a", encoding="utf-8") as f:
                     f.write(
                         f"查找到重复参考文献: {ref.get('title')} (DOI: {ref_key})\n")
+                if callback:
+                    callback(f"[重复] 已处理文献: {ref.get('title')}\n")
                 continue
             self.processed_refs[ref_key] = []
 
             # 跳过非arXiv文献
             if not (ref.get("journal") and ref.get("journal").lower() == "arxiv"):
-                print(f"[跳过] 非arXiv文献: {ref.get('title')}")
+                if callback:
+                    callback(f"[跳过] 非arXiv文献: {ref.get('title')}\n")
                 continue
 
             try:
@@ -204,17 +207,20 @@ class CitationVerificationLangchainVer:
                 refer_abstract = self.parser.extract_abstract(
                     ref_path) or ""
             except Exception as e:
-                print(f"处理文献 {ref.get('title', '未知')} 时出错: {str(e)}")
+                error_msg = f"❌ 处理文献 {ref.get('title', '未知')} 时出错: {str(e)}\n"
+                if callback:
+                    callback(error_msg)
                 with open(self.error_path, "a", encoding="utf-8") as f:
-                    f.write(f"❌ 处理失败: {ref['title']} - {str(e)}\n")
+                    f.write(error_msg)
                 continue
 
             # 检索相关段落
             refer_texts = self.extract_refer_text_by_faiss(ref)
 
             if not refer_texts:
-                msg = f"❗️未找到引用: {ref['title']}"
-                print(msg)
+                msg = f"❗️未找到引用: {ref['title']}\n"
+                if callback:
+                    callback(msg)
                 with open(self.error_path, "a", encoding="utf-8") as f:
                     f.write(msg + "\n")
                 continue
@@ -245,8 +251,10 @@ class CitationVerificationLangchainVer:
                 }
                 ref_results.append(result_entry)
 
-                # 输出到控制台和文件
-                print(f"【{ref['title']}】段落{idx+1}: {output_text}")
+                # 输出到回调和文件
+                output_msg = f"【{ref['title']}】段落{idx+1}: {output_text}\n"
+                if callback:
+                    callback(output_msg)
                 seg = '*' * 60
                 with open(self.result_path, "a", encoding="utf-8") as f:
                     f.write(

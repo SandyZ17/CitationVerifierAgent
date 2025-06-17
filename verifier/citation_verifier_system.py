@@ -98,12 +98,13 @@ class CitationVerificationSystem:
         with open(self.hash_file, 'a', encoding='utf-8') as f:
             for h in new_hashes:
                 f.write(h + "\n")
-
-    def download_if_needed(self, arxiv_doi):
+    def download_if_needed(self, arxiv_doi, callback=None):
         """按需下载文献"""
         try:
             pdf_path = os.path.join(self.download_dir, f"{arxiv_doi}.pdf")
             if os.path.exists(pdf_path):
+                if callback:
+                    callback(f"已存在: {arxiv_doi} → {pdf_path.replace(os.sep, '/')}\n")
                 return pdf_path
 
             doi = arxiv_doi.split(":")[-1]
@@ -116,15 +117,26 @@ class CitationVerificationSystem:
                 s_result[0]["pdf_link"], pdf_path)
 
             if success:
-                print(f"成功下载: {arxiv_doi} → {pdf_path}")
+                msg = f"成功下载: {arxiv_doi} → {pdf_path.replace(os.sep, '/')}\n"
+                if callback:
+                    callback(msg)
+                else:
+                    print(msg)
                 return pdf_path
             else:
                 raise RuntimeError(f"下载失败: {arxiv_doi}")
 
         except Exception as e:
-            raise RuntimeError(f"处理文献 {arxiv_doi} 失败: {str(e)}")
+            error_msg = f"处理文献 {arxiv_doi} 失败: {str(e)}\n"
+            if callback:
+                callback(error_msg)
+            else:
+                print(error_msg)
+            raise RuntimeError(error_msg)
 
-    def verify_citation(self, references):
+
+
+    def verify_citation(self, references, callback=None):
         """
         使用grobid进行tei解析，并提取参考文献（基于精确位置）。
         """
@@ -133,26 +145,32 @@ class CitationVerificationSystem:
         for ref in references:
             # 跳过非arXiv文献
             if not (ref.get("journal") and ref.get("journal").lower() == "arxiv"):
-                print(f"[跳过] 非arXiv文献: {ref.get('title')}")
+                if callback:
+                    callback(f"[跳过] 非arXiv文献: {ref.get('title')}\n")
                 continue
 
             if not ref.get("doi"):
-                print(f"[跳过] 缺少DOI: {ref.get('title')}")
+                if callback:
+                    callback(f"[跳过] 缺少DOI: {ref.get('title')}\n")
                 continue
 
             # 避免重复处理同一文献
             ref_key = ref["doi"]
             if ref_key in self.processed_refs:
                 results.extend(self.processed_refs[ref_key])
+                if callback:
+                    callback(f"[缓存] 已处理文献: {ref.get('title')}\n")
                 continue
 
             try:
                 ref_path = self.download_if_needed(ref["doi"])
                 refer_abstract = self.parser.extract_abstract(ref_path) or ""
             except Exception as e:
-                print(f"处理文献 {ref.get('title', '未知')} 时出错: {str(e)}")
+                error_msg = f"❌ 处理文献 {ref.get('title', '未知')} 时出错: {str(e)}\n"
+                if callback:
+                    callback(error_msg)
                 with open(self.output_path, "a", encoding="utf-8") as f:
-                    f.write(f"❌ 处理失败: {ref['title']} - {str(e)}\n")
+                    f.write(error_msg)
                 continue
 
             # 找到论文中引用参考文献的段落
@@ -160,12 +178,14 @@ class CitationVerificationSystem:
                 ext_list = self.parser.extract_refer_text(
                     self.doc_path, ref.get('ref_id'))
             except Exception as e:
-                print(f"提取引用文本失败: {str(e)}")
+                if callback:
+                    callback(f"提取引用文本失败: {str(e)}\n")
                 ext_list = []
 
             if not ext_list:
-                msg = f"❗️未找到直接引用: {ref.get('title')}"
-                print(msg)
+                msg = f"❗️未找到直接引用: {ref.get('title')}\n"
+                if callback:
+                    callback(msg)
                 with open(self.output_path, "a", encoding="utf-8") as f:
                     f.write(msg + "\n")
                 continue
@@ -196,12 +216,12 @@ class CitationVerificationSystem:
                 }
                 ref_results.append(result_entry)
 
-                # 输出到控制台和文件
-                print(
-                    f"\n【{ref['title']}】精确位置{idx+1}: {output_text}\n")
+                # 输出到回调和文件
+                output_msg = f"\n【{ref['title']}】精确位置{idx+1}: {output_text}\n"
+                if callback:
+                    callback(output_msg)
                 with open(self.output_path, "a", encoding="utf-8") as f:
-                    f.write(
-                        f"【精确位置】{ref['title']}段落{idx+1}:\n\n{context}\nresult:\n {output_text}\n\n")
+                    f.write(f"【精确位置】{ref['title']}段落{idx+1}:\n\n{context}\nresult:\n {output_text}\n\n")
 
             # 缓存结果
             self.processed_refs[ref_key] = ref_results
