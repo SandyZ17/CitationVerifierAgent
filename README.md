@@ -52,9 +52,10 @@ docker run --platform linux/arm64 --init -p 8070:8070 lfoppiano/grobid:latest-cr
 
 ## 1. Build && Run
 
-在根目录下创建一个 `.env` 文件，内容如下（目前只支持使用通义千问API）：
+在根目录下创建一个 `.env` 文件，内容如下：
 
 ```text
+LLM_PLATFORM=tongyi
 API_KEY=sk-***********
 EMBEDDING_MODEL=text-embedding-v2
 LLM_MODEL=qwen-max
@@ -62,6 +63,7 @@ GROBID_URL=http://127.0.0.1:8070
 ```
 
 配置文件说明
+LLM_PLATFORM: 必填，LLM 平台名称，目前支持 `tongyi/openai/qianfan`。
 API_KEY: 必填，通义千问API密钥。
 EMBEDDING_MODEL: 必填，嵌入模型名称，自行选择 QWEN 官方可支持的模型。
 LLM_MODEL: 必填，LLM模型名称，自行选择 QWEN 官方可支持的模型。
@@ -92,27 +94,39 @@ python main.py --doc_path your_test_pdf_path --download_dir your_arxiv_doc_dir -
 
 ```text
 CitationVerifierAgent
-├── clients             # 客户端
-│   └── arxiv_client.py
-├── config              # 配置文件
-│   └── settings.py
+├── clients
+│   └── arxiv_client.py                 # Arxiv API 客户端
+├── config
+│   └── settings.py                     # 配置文件
+├── data
+│   ├── output                          # 输出结果目录
+│   │   ├── 2506.05336v1
+│   │   │   ├── error_2506.05336v1.txt
+│   │   │   └── result_2506.05336v1.txt
+│   │   └── test
+│   │       └── result_test.txt
+│   └── test_pdf
+│       ├── 2506.05336v1.pdf
+│       └── test.pdf
 ├── LICENSE
-├── main.py             # 主程序入口
-├── parsers             # 解析器
-│   ├── file_parser.py
-│   ├── grobid_parser.py
-│   ├── latex_parser.py
-│   └── word_parser.py
+├── main.py                             # 项目入口
+├── parsers                             # 论文解析器    
+│   └── grobid_parser.py               
+├── process.drawio                      # 项目流程图
 ├── README.md
-├── requirements.txt
-├── utils               # 工具类
-│   ├── academic_paper_splitter.py
-│   └── refer_parser.py
-└── verifier            # 验证器
-    └── citation_verifier_system.py
+├── requirements.txt                    # 项目依赖
+├── utils
+│   ├── academic_paper_splitter.py      # 论文内容分割
+│   └── refer_parser.py                 # 引用关系解析
+└── verifier
+    ├── citation_verifier_system.py         # 引用关系验证系统
+    └── citation_verify_langchain_ver.py    # 基于Langchain的引用关系验证系统
 ```
 
 - 项目架构图
+
 ![架构图](./images/process.svg)
+
 - 项目运行流程图如下所示
+
 ![流程图](./images/process_1.svg)

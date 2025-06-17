@@ -18,6 +18,8 @@ CHECK_TYPE = os.getenv("CHECK_TYPE", CheckType.CHECK_TYPE_SIMPLE)
 
 GROBID_URL = os.getenv("GROBID_URL", "http://localhost:8070")
 
+LLM_PLATFORM = os.getenv("LLM_PLATFORM", "dashscope")
+
 # 大模型配置
 MODEL_CONFIGS = {
     "openai": {

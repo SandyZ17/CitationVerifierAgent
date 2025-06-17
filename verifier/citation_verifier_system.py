@@ -4,7 +4,7 @@ import json
 
 from parsers.grobid_parser import GrobidParser as gp
 from clients.arxiv_client import ArxivClient
-from config.settings import MODEL_CONFIGS, GROBID_URL
+from config.settings import MODEL_CONFIGS, GROBID_URL, LLM_PLATFORM
 
 from langchain_community.llms.tongyi import Tongyi
 from langchain_community.embeddings import DashScopeEmbeddings
@@ -37,13 +37,44 @@ class CitationVerificationSystem:
         # 清空或创建输出文件
         with open(self.output_path, "w", encoding="utf-8") as f:
             f.write(f"引用验证报告 - {self.doc_id}\n\n")
-
-        self.llm = Tongyi(
-            model=MODEL_CONFIGS['dashscope']['model'],
-            api_key=MODEL_CONFIGS['dashscope']['api_key'])
+        self.init_llm_platform()
 
         # 缓存已处理的文献
         self.processed_refs = {}
+
+    def init_llm_platform(self):
+        # 初始化 LLM
+        if LLM_PLATFORM == "openai":
+            from langchain_community.embeddings import OpenAIEmbeddings
+            import langchain_community.llms.openai as openai
+            self.embeddings = OpenAIEmbeddings(
+                model=MODEL_CONFIGS['dashscope']['embedding_model'],
+                api_key=MODEL_CONFIGS['dashscope']['api_key'])
+            self.llm = openai.OpenAI(
+                model=MODEL_CONFIGS['openai']['model'],
+                api_key=MODEL_CONFIGS['openai']['api_key'])
+        elif LLM_PLATFORM == "tongyi":
+            from langchain_community.embeddings import DashScopeEmbeddings
+            import langchain_community.llms.tongyi as tongyi
+            # 初始化嵌入模型
+            self.embeddings = DashScopeEmbeddings(
+                model=MODEL_CONFIGS['dashscope']['embedding_model'],
+                dashscope_api_key=MODEL_CONFIGS['dashscope']['api_key'])
+            self.llm = tongyi.Tongyi(
+                model=MODEL_CONFIGS['dashscope']['model'],
+                api_key=MODEL_CONFIGS['dashscope']['api_key'])
+        elif LLM_PLATFORM == "qianfan":
+            from langchain_community.embeddings.baidu_qianfan_endpoint import QianfanEmbeddingsEndpoint
+            import langchain_community.llms.baidu_qianfan_endpoint as qianfan
+            # 初始化嵌入模型
+            self.embeddings = QianfanEmbeddingsEndpoint(
+                model=MODEL_CONFIGS['dashscope']['embedding_model'],
+                api_key=MODEL_CONFIGS['dashscope']['api_key'])
+            self.llm = qianfan.QianfanLLMEndpoint(
+                model=MODEL_CONFIGS['qianfan']['model'],
+                api_key=MODEL_CONFIGS['qianfan']['api_key'])
+        else:
+            raise ValueError(f"Unsupported LLM platform: {LLM_PLATFORM}")
 
     def get_doc_hash(self, document):
         """结合内容和元数据生成唯一哈希"""
